@@ -434,7 +434,7 @@ for i in range(1,n):
 #print "Optimal resulting height", OPTH
 
 
-with open(“SDP10_10_10.csv", "wb") as f:
+with open("SDP10_10_10.csv", "wb") as f:
     writer = csv.writer(f)
     writer.writerows(OPTRESULTS)
             
