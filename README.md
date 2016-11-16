@@ -9,6 +9,9 @@ I.2. SDP: Stochastic Dynamic Programming for Certain Nonstationary hydrology, ru
 I.3. SDPMP: Stochastic Dynamic Programming with Markov Process for Uncertain Nonstationary hydrology, run for a series of uncertain climate scenarios, conditional probability is updated using Baye's Theorem.
 
 
+
+
+
 II. Using normal distribution for annual peak flood flow curve, and only take mean annual peak flow as changing parameter for a climate scenario
 
 II.1. DP_normal: Dynamic Programming for Stationary Hydrology, would be run for different climate scenarios (mean annual peak flow) separately
