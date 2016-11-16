@@ -445,8 +445,11 @@ for i in range(n):
             (OPTRESULTS[i*NH+l][j+2]) = (OPTUP[i][l][j])
             (OPTRESULTS[i*NH+l][j+NA+2]) = (OPTH[i][l][j])
             (OPTRESULTS[i*NH+l][j+2*NA+2]) = (OPTVALUE[i][l][j])
-            if ( i % T ) == 0:
-                print 'Stage:', i+1, 'Exist H:', (EXH[i][l]), 'Ob Climate:', j+1, 'Opt Up H:', (OPTUP[i][l][j]), 'Result H:', (OPTH[i][l][j]), 'Opt Value:', (OPTVALUE[i][l][j]) 
+            if i == 0:
+                if l == 0:
+                    print 'Stage:', i+1, 'Exist H:', (EXH[i][l]), 'Ob Climate:', j+1, 'Opt Up H:', (OPTUP[i][l][j]), 'Result H:', (OPTH[i][l][j]), 'Opt Value:', (OPTVALUE[i][l][j]) 
+            #if ( i % T ) == 0:
+                #print 'Stage:', i+1, 'Exist H:', (EXH[i][l]), 'Ob Climate:', j+1, 'Opt Up H:', (OPTUP[i][l][j]), 'Result H:', (OPTH[i][l][j]), 'Opt Value:', (OPTVALUE[i][l][j]) 
                 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       
