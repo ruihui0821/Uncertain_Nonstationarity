@@ -3,7 +3,8 @@ start = time.time()
 
 import numpy as np
 import math  # This will import math module
-from scipy.stats import lognorm # A normal continuous random variable. pdf(x, loc=0, scale=1), cdf(x, loc=0, scale=1)
+from scipy.stats import lognorm # A lognormal continuous random variable. lognorm.pdf(x, s) = 1 / (s*x*sqrt(2*pi)) * exp(-1/2*(log(x)/s)**2)
+# Specifically, lognorm.pdf(x, s, loc, scale) is identically equivalent to lognorm.pdf(y, s) / scale with y = (x - loc) / scale.
 from scipy.integrate import quad
 import csv
 
@@ -14,8 +15,8 @@ import csv
 largenumber = 1e+20 # a very large number for calculation purpose
 
 # Planning time periods
-T = 2 # the year interval that a levee to be upgrading (yrs)
-NT = 3 # the number of intervals in a levee's lifetime
+T = 10 # the year interval that a levee to be upgrading (yrs)
+NT = 10 # the number of intervals in a levee's lifetime
 n = int(NT * T) # a levee total lifetime (yrs)
 
 # Levee design standard
@@ -37,8 +38,8 @@ mu0 = 100.0 # Mean annual average peak flow (m**3/s)
 sigma0 = 50.0 # Standard deviation of annual average peak flow
 
 # climate scenarios
-NMU = 2 # number of different changing mean
-NSIGMA = 2 # number of different changing standard deviation
+NMU = 5 # number of different changing mean
+NSIGMA = 3 # number of different changing standard deviation
 NA = NMU * NSIGMA # number of climate scenarios
 
 muslope = np.zeros(NMU) 
