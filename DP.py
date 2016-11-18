@@ -5,8 +5,9 @@ import numpy as np
 import math  # This will import math module
 from scipy.stats import lognorm # A lognormal continuous random variable. lognorm.pdf(x, s) = 1 / (s*x*sqrt(2*pi)) * exp(-1/2*(log(x)/s)**2)
 # Specifically, lognorm.pdf(x, s, loc, scale) is identically equivalent to lognorm.pdf(y, s) / scale with y = (x - loc) / scale.
-from scipy.integrate import quad
+from scipy.integrate import quad, simps
 import csv
+import matplotlib.pyplot as plt
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Input
@@ -15,54 +16,55 @@ import csv
 largenumber = 1e+20 # a very large number for calculation purpose
 
 # Planning time periods
-T = 10 # the year interval that a levee to be upgrading (yrs)
-NT = 10 # the number of intervals in a levee's lifetime
+T = 20 # the year interval that a levee to be upgrading (yrs)
+NT = 5 # the number of intervals in a levee's lifetime
 n = int(NT * T) # a levee total lifetime (yrs)
 
 # Levee design standard
 H0 = 0.0 # The initial levee height (meter)
-DELTAH = 0.1 # Step size of levee height (meter)
+DELTAH = 1 # Step size of levee height (meter)
 Hmin = 0.0 # The minimum levee height (meter)
 Hmax = 10.0 # The maximum levee height (meter)
 Hupmax = 10.0 # The maximum upgrading levee height (meter)
 
 # Financial Parameters
-DC = 10.0 # Flood Damage Cost, assuming simultaneous failures on two riversides with a constant value (million $)
+DC = 30.0 # Flood Damage Cost, assuming simultaneous failures on two riversides with a constant value (million $)
 Cland = 1.0 # Price of land ($/m**2) 
 Csoil = 30.0 # Soil compaction cost or construction cost per unit levee material ($/m**3)
 Cadjust =1.3 # Soft Cost Multiplier considering management
 R = 0.05 # Real (inflation-adjusted) discount rate
 
 # Stationary Annual Flow Parameters
-mu0 = 100.0 # Mean annual average peak flow (m**3/s)
-sigma0 = 50.0 # Standard deviation of annual average peak flow
+logmu0 = 3.5 # location parameter of annual peak flow # the bigger the lower peak probability and longer tail
+logsigma0 = 0.8 # scale parameter of annual peak flow  # the bigger the lower peak probability and longer tail
+expmu0 = math.exp(logmu0)
+mu0 = math.exp(logmu0 + logsigma0**2/2) # Mean annual average peak flow (m**3/s)
+var0 = (math.exp(logsigma0**2) - 1) * math.exp(2*logmu0 + logsigma0**2) # Variation of flow
+sd0 = math.sqrt(var0) # Standard deviation of annual average peak flow
+
+deltaq = 0.01 # integration interval
 
 # climate scenarios
 NMU = 1 # number of different changing mean
 NSIGMA = 1 # number of different changing standard deviation
 NA = NMU * NSIGMA # number of climate scenarios
 
-muslope = 0.00/100 
+muslope = 2.0/100 
 # initialization of variation of possible annual average peak flow   
-sigmaslope = 0.00/100     
+sigmaslope = -0.1/100     
 
-MU = np.zeros(n)
-# initialization of annual average peak flow for n years
-SIGMA = np.zeros(n)
-# initialization of annual standard deviation of peak flow for n years
-LOGMU = np.zeros(n)
-# initialization of location parameter of annual peak flow for n years
-LOGSIGMA = np.zeros(n)
-# initialization of scale parameter of annual peak flow for n years
+LOGMU = np.zeros((n,NA))
+# initialization of location parameter of annual peak flow for n years and NA climate scenarios
+LOGSIGMA = np.zeros((n,NA))
+# initialization of scale parameter of annual peak flow for n years and NA climate scenarios
 # On a logarithmic scale, {\displaystyle \mu } \mu  and {\displaystyle \sigma } \sigma  can be called the location parameter and the scale parameter, respectively.
 for i in range(n):
 # stage or time i        
-    MU[i] = mu0 + muslope * mu0 * (i + 1) 
-    # annual average peak flow for time i
-    SIGMA[i] = sigma0 + sigmaslope * sigma0 * (i + 1) 
-    # annual average peak flow for time i
-    LOGMU[i] = math.log( ( (MU[i])**2) / math.sqrt( SIGMA[i] + (MU[i])**2 ) )
-    LOGSIGMA[i] = math.sqrt( math.log( SIGMA[i] / ( (MU[i])**2 ) + 1 ) )
+    LOGMU[i] = logmu0 + muslope * logmu0 * (i + 1) 
+    # location parameter of annual average peak flow for time i and climate scenario j, chaing linearly
+    LOGSIGMA[i] = logsigma0 + sigmaslope * logsigma0 * (i + 1)
+    # scale parameter of annual peak flow for time i and climate scenario j, chaing exponationly
+
 
 # Given Channel Parameters
 Sc = 0.0005 # Longitudinal slope of the Channel, also the slope of the hydraulic grade line or the linear hydraulic head loss
@@ -141,24 +143,29 @@ QCMIN = flow( Htoe ) # The base channel capacity at the toe of the levee, below 
 def integrand(Q, intemu, intesigma, inteheight):
     Htop = Htoe + inteheight
     QCMAX = flow( Htop )
-    PQ = lognorm.pdf(Q, intemu, intesigma) # # Probability of Flow Q (PDF)
+    inteexpmu = math.exp(intemu)
+    PQ = lognorm.pdf(Q, intesigma, loc = intemu, scale = inteexpmu) # # Probability of Flow Q (PDF)
     if QCMAX == QCMIN:
         PNOVER = 1
     else:
         PNOVER = ( Q - QCMIN )/( QCMAX - QCMIN )
     return PQ*PNOVER
-
+    
 def intermediatefailure(intemu, intesigma, inteheight):
     Htop = Htoe + inteheight
     QCMAX = flow( Htop )
-    FINTERMEDIATE = quad(integrand, QCMIN, QCMAX, args=(intemu, intesigma, inteheight))[0]
+    #FINTERMEDIATE = quad(integrand, QCMIN, QCMAX, args=(intemu, intesigma, inteheight))[0]
+    inteq = np.arange( QCMIN, QCMAX + deltaq, deltaq )
+    FINTERMEDIATE = simps(integrand(inteq, intemu, intesigma, inteheight), inteq)
     return FINTERMEDIATE
 
+ 
 ##################  Overflow failure probability
 def overtopfailure(overmu, oversigma, overheight):
     Htop = Htoe + overheight
     OVERFLOW = flow(Htop) # Overtopping Flow
-    FNOVER = lognorm.cdf(OVERFLOW, overmu, oversigma)
+    overexpmu = math.exp(overmu)
+    FNOVER = lognorm.cdf(OVERFLOW, oversigma, loc = overmu, scale = overexpmu)
     FOVER = 1 - FNOVER    
     return FOVER
 
