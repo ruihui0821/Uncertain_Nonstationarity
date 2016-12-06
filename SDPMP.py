@@ -415,7 +415,7 @@ for i in range(1):
                 # expected annual total cost only exists when existing + upgrading height is no greater than maximum height
                 if existh + upgradh <= Hmax + 1e-6:
                 # expected annual total cost only exists when existing + upgrading height is no greater than maximum height
-                    (EATC[i][j][l][m]) = annualtotalcost( existh, upgradh, logmu, logsigma ) * ( 1/((1+R)**i) ) * (PAMU[i][j][k])
+                    (EATC[i][j][l][m]) = annualtotalcost( existh, upgradh, logmu, logsigma ) * (PAMU[i][j][k])
                     for ll in range(NH):
                     # next stage index for existing levee height
                         if abs( (EXH[i+1][ll]) - existh - upgradh ) < 1e-6:
@@ -434,7 +434,7 @@ for i in range(1):
                     # expected annual total cost only exists when existing + upgrading height is no greater than maximum height
                     if existh + upgradh <= Hmax + 1e-6:
                     # expected annual total cost only exists when existing + upgrading height is no greater than maximum height   
-                        (EATC[i][j][l][m]) = (EATC[i][j][l][m]) + annualtotalcost( existh, upgradh, logmu, logsigma ) * ( 1/((1+R)**i) ) * (PAMU[i][j][k])
+                        (EATC[i][j][l][m]) = (EATC[i][j][l][m]) + annualtotalcost( existh, upgradh, logmu, logsigma ) * (PAMU[i][j][k])
                         # adding up for expected annual total cost over all possible climate scenarios at stage i
                         for ll in range(NH):
                         # next stage index for existing levee height
