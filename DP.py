@@ -22,25 +22,28 @@ n = int(NT * T) # a levee total lifetime (yrs)
 
 # Levee design standard
 H0 = 0.0 # The initial levee height (meter)
-DELTAH = 1 # Step size of levee height (meter)
+DELTAH = 0.1 # Step size of levee height (meter)
 Hmin = 0.0 # The minimum levee height (meter)
 Hmax = 10.0 # The maximum levee height (meter)
 Hupmax = 10.0 # The maximum upgrading levee height (meter)
 
 # Financial Parameters
-DC = 30.0 # Flood Damage Cost, assuming simultaneous failures on two riversides with a constant value (million $)
+DC = 8.0 # Flood Damage Cost, assuming simultaneous failures on two riversides with a constant value (million $)
 Cland = 1.0 # Price of land ($/m**2) 
 Csoil = 30.0 # Soil compaction cost or construction cost per unit levee material ($/m**3)
 Cadjust =1.3 # Soft Cost Multiplier considering management
-R = 0.05 # Real (inflation-adjusted) discount rate
+R = 0.04 # Real (inflation-adjusted) discount rate
 
 # Stationary Annual Flow Parameters
-logmu0 = 3.5 # location parameter of annual peak flow # the bigger the lower peak probability and longer tail
-logsigma0 = 0.8 # scale parameter of annual peak flow  # the bigger the lower peak probability and longer tail
-expmu0 = math.exp(logmu0)
-mu0 = math.exp(logmu0 + logsigma0**2/2) # Mean annual average peak flow (m**3/s)
-var0 = (math.exp(logsigma0**2) - 1) * math.exp(2*logmu0 + logsigma0**2) # Variation of flow
-sd0 = math.sqrt(var0) # Standard deviation of annual average peak flow
+mu0 = 100.0 # Mean annual flow (m**3/s), the bigger the lower peak probability and longer tail
+sigma0 = 66.0 # Standard deviation of annual flow
+cv0 = sigma0 / mu0 # Coefficient of variation
+var0 = sigma0**2 # Variation of flow, the bigger the lower peak probability and longer tail
+logmu0 = math.log( ( mu0**2) / math.sqrt( var0 + mu0**2 ) ) 
+# location parameter of annual flow # the bigger the lower peak probability and longer tail
+logsigma0 = math.sqrt( math.log( var0 / ( mu0**2 ) + 1 ) ) 
+# scale parameter of annual flow  # the bigger the lower peak probability and longer tail
+expmu0 = math.exp(logmu0)  
 
 deltaq = 0.01 # integration interval
 
@@ -49,22 +52,34 @@ NMU = 1 # number of different changing mean
 NSIGMA = 1 # number of different changing standard deviation
 NA = NMU * NSIGMA # number of climate scenarios
 
-muslope = 2.0/100 
+muslope = 0.0/100 
 # initialization of variation of possible annual average peak flow   
-sigmaslope = -0.1/100     
+sigmaslope = 0.0/100     
 
-LOGMU = np.zeros((n,NA))
-# initialization of location parameter of annual peak flow for n years and NA climate scenarios
-LOGSIGMA = np.zeros((n,NA))
-# initialization of scale parameter of annual peak flow for n years and NA climate scenarios
+MU = np.zeros(n)
+# initialization of mean annual flow for n years
+SIGMA = np.zeros(n)
+# initialization of standard deviation of annual flow for n years
+LOGMU = np.zeros(n)
+# initialization of location parameter of annual peak flow for n years
+LOGSIGMA = np.zeros(n)
+# initialization of scale parameter of annual peak flow for n years
 # On a logarithmic scale, {\displaystyle \mu } \mu  and {\displaystyle \sigma } \sigma  can be called the location parameter and the scale parameter, respectively.
 for i in range(n):
 # stage or time i        
-    LOGMU[i] = logmu0 + muslope * logmu0 * (i + 1) 
-    # location parameter of annual average peak flow for time i and climate scenario j, chaing linearly
-    LOGSIGMA[i] = logsigma0 + sigmaslope * logsigma0 * (i + 1)
-    # scale parameter of annual peak flow for time i and climate scenario j, chaing exponationly
-
+    MU[i] = mu0 + muslope * mu0 * (i + 1)    
+    # annual average peak flow for time i, changing linearly
+    SIGMA[i] = sigma0 + sigmaslope * sigma0 * (i+1)
+    # standard deviation of annual flow for time i, changing linearly
+    cv = SIGMA[i] / MU[i]
+    # additional change to Coefficient of variation, not necessary since sigma will change with mu anyway      
+    var = SIGMA[i]**2 
+    # Variation of flow, the bigger the lower peak probability and longer tail
+    LOGMU[i] = math.log( ( (MU[i])**2) / math.sqrt( var + (MU[i])**2 ) )         
+    # location parameter of annual flow for time i and climate scenario j
+    LOGSIGMA[i] = math.sqrt( math.log( var / ( (MU[i])**2 ) + 1 ) )
+    # scale parameter of annual flow for time i and climate scenario j
+    #print i+1, k+1, MU[i,k], SIGMA[i,k], cv, var, LOGMU[i,k], LOGSIGMA[i,k]    
 
 # Given Channel Parameters
 Sc = 0.0005 # Longitudinal slope of the Channel, also the slope of the hydraulic grade line or the linear hydraulic head loss
@@ -79,7 +94,7 @@ WS = 1.0/2.0 # Water side-slopes tan(waterside angle)= 1:2
 LS = 1.0/4.0 # Land side-slopes tan(langdside angle)= 1:4
 FS = 0.01 # Floodplain slope
 Bc = 10.0 # Levee crown width (meter)
-L = 3000.0 # Total levee length (meter)
+L = 2000.0 # Total levee length (meter)
  
 # Levee Design parameters
 NH = int(round((Hmax-Hmin)/DELTAH+1)) # Number of discretized initial levee height
@@ -237,9 +252,8 @@ for i in range(n-1,n):
             logsigma = (LOGSIGMA[i])                 
             if existh + upgradh <= Hmax + 1e-6:
             # expected annual total cost only exists when existing + upgrading height is no greater than maximum height
-                (EATC[i][l][m]) = annualtotalcost( existh, upgradh, logmu, logsigma ) * ( 1/((1+R)**i) )
-            (EMINIVALUE[i][l][m]) = 0 # No future expected value to be added
-            (VALUE[i][l][m]) = ( (EATC[i][l][m]) + (EMINIVALUE[i][l][m]) ) * (math.exp(R*(i+1))/(math.exp(R*(i+1))-1))                   
+                (EATC[i][l][m]) = annualtotalcost( existh, upgradh, logmu, logsigma )
+            (VALUE[i][l][m]) = (EATC[i][l][m]) * ( (math.exp(R)) / (math.exp(R)-1) )                    
 
 # backward recursive function for the intermediate stages
 for i in range(n-2,0,-1):
@@ -265,7 +279,7 @@ for i in range(n-2,0,-1):
             # expected annual total cost only exists when existing + upgrading height is no greater than maximum height
             if existh + upgradh <= Hmax + 1e-6:
             # expected annual total cost only exists when existing + upgrading height is no greater than maximum height
-                (EATC[i][l][m]) = annualtotalcost( existh, upgradh, logmu, logsigma ) * ( 1/((1+R)**i) )
+                (EATC[i][l][m]) = annualtotalcost( existh, upgradh, logmu, logsigma )
                 for ll in range(NH):
                 # next stage index for existing levee height
                     if abs( (EXH[i+1][ll]) - existh - upgradh ) < 1e-6:
@@ -275,7 +289,7 @@ for i in range(n-2,0,-1):
                             if (VALUE[i+1][ll][mm]) < MINIVALUE:
                                 MINIVALUE = (VALUE[i+1][ll][mm])
             (EMINIVALUE[i][l][m]) = MINIVALUE                
-            (VALUE[i][l][m]) = (EATC[i][l][m]) + (EMINIVALUE[i][l][m])
+            (VALUE[i][l][m]) = (EATC[i][l][m]) + (EMINIVALUE[i][l][m]) * ( math.exp( -R*1 ) )
 
 # backward recursive function for the (first) starting stage
 for i in range(1):
@@ -301,7 +315,7 @@ for i in range(1):
             # expected annual total cost only exists when existing + upgrading height is no greater than maximum height
             if existh + upgradh <= Hmax + 1e-6:
             # expected annual total cost only exists when existing + upgrading height is no greater than maximum height
-                (EATC[i][l][m]) = annualtotalcost( existh, upgradh, logmu, logsigma ) * ( 1/((1+R)**i) )
+                (EATC[i][l][m]) = annualtotalcost( existh, upgradh, logmu, logsigma )
                 for ll in range(NH):
                 # next stage index for existing levee height
                     if abs( (EXH[i+1][ll]) - existh - upgradh ) < 1e-6:
@@ -311,7 +325,7 @@ for i in range(1):
                             if (VALUE[i+1][ll][mm]) < MINIVALUE:
                                 MINIVALUE = (VALUE[i+1][ll][mm])
             (EMINIVALUE[i][l][m]) = MINIVALUE                
-            (VALUE[i][l][m]) = (EATC[i][l][m]) + (EMINIVALUE[i][l][m])
+            (VALUE[i][l][m]) = (EATC[i][l][m]) + (EMINIVALUE[i][l][m]) * ( math.exp( -R*1 ) )
             
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialization for STEP3
