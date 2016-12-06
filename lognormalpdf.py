@@ -7,7 +7,7 @@ from scipy.stats import lognorm, norm
 # A normal continuous random variable. pdf(x, loc=0, scale=1), cdf(x, loc=0, scale=1)
 
 mu0 = 100.0
-cv0 = 0.96
+cv0 = 0.66
 inmu = 1.0
 insigma = 0.5
 
@@ -37,8 +37,16 @@ print mu, var, sd, logmu, logsigma, expmu
 #sd = math.sqrt(var)
 #print mu, var, sd, logmu, logsigma
 
-plt.plot(inteq, lognorm.pdf(inteq, logsigma, loc = logmu, scale = expmu), lw=8, ls = 'solid', color = 'blue', alpha=0.6, label='lognorm pdf')
+plt.plot(inteq, lognorm.pdf(inteq, logsigma, loc = logmu, scale = expmu), lw=6, ls = 'solid', color = 'blue', alpha=0.6, label='Climate Scenario A1')
 plt.axis([QCMIN, QCMAX, 0.0, 0.01])
+
+plt.xlabel('Annual Flood Flow (m^3/s)')
+plt.ylabel('Probability')
+
+#plt.title('Lognormal Distribution of Annual Flood Flow')
+
+#plt.axis('off') # turns off the axis lines and labels.
+
 #http://matplotlib.org/api/pyplot_api.html
 #linewidth or lw	float value in points
 #linestyle or ls	['solid' | 'dashed', 'dashdot', 'dotted' | (offset, on-off-dash-seq) | '-' | '--' | '-.' | ':' | 'None' | ' ' | '']
@@ -60,7 +68,7 @@ expmu = math.exp(logmu)
 
 print mu, var, sd, logmu, logsigma, expmu
 
-plt.plot(inteq, lognorm.pdf(inteq, logsigma, loc = logmu, scale = expmu), lw=8, ls = 'dashed', color = 'orange', alpha=0.6, label='lognorm pdf')
+plt.plot(inteq, lognorm.pdf(inteq, logsigma, loc = logmu, scale = expmu), lw=6, ls = 'dashed', color = 'orange', alpha=0.6, label='Climate Scenario A2')
 plt.axis([QCMIN, QCMAX, 0.0, 0.01])
 
 
@@ -74,7 +82,7 @@ expmu = math.exp(logmu)
 
 print mu, var, sd, logmu, logsigma, expmu
 
-plt.plot(inteq, lognorm.pdf(inteq, logsigma, loc = logmu, scale = expmu), lw=8, ls = 'solid', color = 'red', alpha=0.6, label='lognorm pdf')
+plt.plot(inteq, lognorm.pdf(inteq, logsigma, loc = logmu, scale = expmu), lw=6, ls = 'solid', color = 'red', alpha=0.6, label='Climate Scenario A3')
 plt.axis([QCMIN, QCMAX, 0.0, 0.01])
 
 
@@ -88,7 +96,7 @@ expmu = math.exp(logmu)
 
 print mu, var, sd, logmu, logsigma, expmu
 
-plt.plot(inteq, lognorm.pdf(inteq, logsigma, loc = logmu, scale = expmu), lw=8, ls = 'dashed', color = 'purple', alpha=0.6, label='lognorm pdf')
+plt.plot(inteq, lognorm.pdf(inteq, logsigma, loc = logmu, scale = expmu), lw=6, ls = 'dashed', color = 'purple', alpha=0.6, label='Climate Scenario A4')
 plt.axis([QCMIN, QCMAX, 0.0, 0.01])
 
 
@@ -102,7 +110,7 @@ expmu = math.exp(logmu)
 
 print mu, var, sd, logmu, logsigma, expmu
 
-plt.plot(inteq, lognorm.pdf(inteq, logsigma, loc = logmu, scale = expmu), lw=8, ls = 'solid', color = 'green', alpha=0.6, label='lognorm pdf')
+plt.plot(inteq, lognorm.pdf(inteq, logsigma, loc = logmu, scale = expmu), lw=6, ls = 'solid', color = 'green', alpha=0.6, label='Climate Scenario A5')
 plt.axis([QCMIN, QCMAX, 0.0, 0.01])
 
 
@@ -116,8 +124,8 @@ expmu = math.exp(logmu)
 
 print mu, var, sd, logmu, logsigma, expmu
 
-plt.plot(inteq, lognorm.pdf(inteq, logsigma, loc = logmu, scale = expmu), lw=8, ls = 'dashed', color = 'black', alpha=0.6, label='lognorm pdf')
+plt.plot(inteq, lognorm.pdf(inteq, logsigma, loc = logmu, scale = expmu), lw=6, ls = 'dashed', color = 'black', alpha=0.6, label='Climate Scenario A6')
 plt.axis([QCMIN, QCMAX, 0.0, 0.01])
 
 
-
+legend = plt.legend(loc='upper right', shadow=True, fontsize='large')
