@@ -48,7 +48,7 @@ expmu0 = math.exp(logmu0)
 deltaq = 0.01 # integration interval
 
 # climate scenarios
-NMU = 3 # number of different changing mean
+NMU = 5 # number of different changing mean
 NSIGMA = 2 # number of different changing standard deviation
 NA = NMU * NSIGMA # number of climate scenarios
 
@@ -57,13 +57,13 @@ muslope = np.zeros(NA)
 for i in range(NA):
     #ki = k % NMU
     # index for changing mean
-    muslope[i] = 1.0/100 * i    
+    muslope[i] = 0.5/100 * i    
 sigmaslope = np.zeros(NA) 
 # initialization of additional variation of possible scale parameter of annual flow
 for i in range(NA):
     #ik = k / NMU
     # index for changing variation
-    sigmaslope[i] = 1.0/100 * i     
+    sigmaslope[i] = 0.5/100 * i     
 
 PA = np.zeros(NA) 
 # initialization of probability of each possible climate scenarios, the same
@@ -205,14 +205,14 @@ def constructioncost(conexisth, conupgradh):
     # Cross section area of the upgraded levee (m**2)
     ALEVEE = ALEVEE1 - ALEVEE0
     # Upgrading cross section area of one levee (m**2)
-    V = ALEVEE * L #Total volume of one levee (m^3)
+    VOLUMN = ALEVEE * L #Total volume of one levee (m^3)
     LC0 = Cland * L * ( Bc + ( 1/WS + 1/LS ) * conexisth )
     # Land use cost of the existing levee primarily for purchasing land ($)
     LC1 = Cland * L * ( Bc + ( 1/WS + 1/LS ) * (conupgradh + conexisth) )
     # Land use cost of the upgraded levee primarily for purchasing land ($)
     LC = LC1 - LC0
     # Upgrading land use cost of one levee ($)
-    cc = ( Cadjust * Csoil * V ) + LC # levee construction cost
+    cc = ( Cadjust * Csoil * VOLUMN ) + LC # levee construction cost
     return cc
      
 def annualtotalcost(EXISTH, UPGRADH, LOGMU, LOGSIGMA):
@@ -244,6 +244,7 @@ for i in range(n):
     for k in range(NA):
     # a climate scenario
         (PAMU[i][k]) = (PA[k])
+        #print i+1, k+1, (PAMU[i][k])
             
                 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -484,7 +485,7 @@ for i in range(1,n):
 #print "Optimal resulting height", OPTH
 
 
-with open("SDP20_5_6.csv", "wb") as f:
+with open("SDP20_5_10.csv", "wb") as f:
     writer = csv.writer(f)
     writer.writerows(OPTRESULTS)
             
