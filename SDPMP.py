@@ -18,8 +18,8 @@ import matplotlib.pyplot as plt
 largenumber = 1e+20 # a very large number for calculation purpose
 
 # Planning time periods
-T = 20 # the year interval that a levee to be upgrading (yrs)
-NT = 5 # the number of intervals in a levee's lifetime
+T = 10 # the year interval that a levee to be upgrading (yrs)
+NT = 10 # the number of intervals in a levee's lifetime
 n = int(NT * T) # a levee total lifetime (yrs)
 
 # Levee design standard
@@ -47,10 +47,10 @@ logsigma0 = math.sqrt( math.log( var0 / ( mu0**2 ) + 1 ) )
 # scale parameter of annual flow  # the bigger the lower peak probability and longer tail
 expmu0 = math.exp(logmu0) 
 
-deltaq = 0.01 # integration interval
+deltaq = 0.1 # integration interval
 
 # climate scenarios
-NMU = 3 # number of different changing mean
+NMU = 5 # number of different changing mean
 NSIGMA = 2 # number of different changing standard deviation
 NA = NMU * NSIGMA # number of climate scenarios
 
@@ -59,13 +59,13 @@ muslope = np.zeros(NA)
 for i in range(NA):
     #ki = k % NMU
     # index for changing mean
-    muslope[i] = 1.0/100 * i    
+    muslope[i] = 0.5/100 * i    
 sigmaslope = np.zeros(NA) 
 # initialization of additional variation of possible scale parameter of annual flow
 for i in range(NA):
     #ik = k / NMU
     # index for changing variation
-    sigmaslope[i] = 1.0/100 * i     
+    sigmaslope[i] = 0.5/100 * i     
 
 PA = np.zeros(NA) 
 # initialization of probability of each possible climate scenarios, the same
@@ -245,13 +245,13 @@ for i in range(n):
     # the climate scenario or MU
         s = 0
         # a climate scenario
-        PMUA0 = ( norm.pdf( (LOGMU[i,k]), (LOGMU[i][s]), (LOGSIGMA[i][s]) ) )**2
+        PMUA0 = norm.pdf( (LOGMU[i,k]), (LOGMU[i][s]), (LOGSIGMA[i][s]) )
         while s < NA - 1:
             s = s + 1
-            PMUA0 = PMUA0 + ( norm.pdf( (LOGMU[i,k]), (LOGMU[i][s]), (LOGSIGMA[i][s]) ) )**2
+            PMUA0 = PMUA0 + norm.pdf( (LOGMU[i,k]), (LOGMU[i][s]), (LOGSIGMA[i][s]) ) 
         for s in range(NA):
         # a climate scenario
-            (PMUA[i][k][s]) = ( norm.pdf( (LOGMU[i,k]), (LOGMU[i][s]), (LOGSIGMA[i][s]) ) )**2 / PMUA0
+            (PMUA[i][k][s]) = norm.pdf( (LOGMU[i,k]), (LOGMU[i][s]), (LOGSIGMA[i][s]) ) / PMUA0
             # lognorm.pdf( QMU, (LOGSIGMA[i][s]), loc = (LOGMU[i][s]), scale = EXPMU )  is the probability of flow (LOGMU[i][k]) given mean and variation
             #print i+1, k+1, s+1, '(PMUA[i][k][s])', (PMUA[i][k][s])
 
@@ -505,9 +505,9 @@ for i in range(n):
                 (OPTRESULTS[ii*NH+l][j+NA+2]) = (OPTH[i][l][j])
                 (OPTRESULTS[ii*NH+l][j+2*NA+2]) = (OPTVALUE[i][l][j])
             # Reporting all
-            #(OPTRESULTS[ii*NH+l][j+2]) = (OPTUP[i][l][j])
-            #(OPTRESULTS[ii*NH+l][j+NA+2]) = (OPTH[i][l][j])
-            #(OPTRESULTS[ii*NH+l][j+2*NA+2]) = (OPTVALUE[i][l][j])
+            #(OPTRESULTS[i*NH+l][j+2]) = (OPTUP[i][l][j])
+            #(OPTRESULTS[i*NH+l][j+NA+2]) = (OPTH[i][l][j])
+            #(OPTRESULTS[i*NH+l][j+2*NA+2]) = (OPTVALUE[i][l][j])
             if i == 0:
                 if l == 0:
                     print 'Stage:', i+1, 'Exist H:', (EXH[i][l]), 'Ob Climate:', j+1, 'Opt Up H:', (OPTUP[i][l][j]), 'Result H:', (OPTH[i][l][j]), 'Opt Value:', (OPTVALUE[i][l][j]) 
@@ -518,7 +518,7 @@ for i in range(n):
 
 
 
-with open("SDPMP20_5_6.csv", "wb") as f:
+with open("SDPMP10_10_10.csv", "wb") as f:
     writer = csv.writer(f)
     writer.writerows(OPTRESULTS)
 
