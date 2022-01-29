@@ -4,7 +4,7 @@
 
 I.1. DP: Dynamic Programming for Stationary Hydrology, would be run for different climate scenarios (mean annual peak flow) separately
 
-I.2. SDP: Stochastic Dynamic Programming for Certain Nonstationary hydrology, run for a series of certain climate scenarios
+I.2. DDP: Deterministic Dynamic Programming for Certain Nonstationary hydrology, run for a series of certain climate scenarios, weighted
 
 I.3. SDPMP: Stochastic Dynamic Programming with Markov Process for Uncertain Nonstationary hydrology, run for a series of uncertain climate scenarios, conditional probability is updated using Baye's Theorem.
 
@@ -13,6 +13,6 @@ I.3. SDPMP: Stochastic Dynamic Programming with Markov Process for Uncertain Non
 
 II.1. DP_normal: Dynamic Programming for Stationary Hydrology, would be run for different climate scenarios (mean annual peak flow) separately
 
-II.2. SDP_normal: Stochastic Dynamic Programming for Certain Nonstationary hydrology, run for a series of certain climate scenarios
+II.2. DDP_normal: Deterministic Dynamic Programming for Certain Nonstationary hydrology, run for a series of certain climate scenarios, weighted
 
 II.3. SDPMP_normal: Stochastic Dynamic Programming with Markov Process for Uncertain Nonstationary hydrology, run for a series of uncertain climate scenarios, conditional probability is updated using Baye's Theorem.
