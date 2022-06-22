@@ -95,6 +95,7 @@ for i in range(n):
         LOGSIGMA[i,k] = math.sqrt( math.log( var / ( (MU[i,k])**2 ) + 1 ) )
         # scale parameter of annual flow for time i and climate scenario j
         #print i+1, k+1, MU[i,k], SIGMA[i,k], cv, var, LOGMU[i,k], LOGSIGMA[i,k]
+# PQ = lognorm.pdf(Q, intesigma, loc = intemu, scale = inteexpmu) # # Probability of Flow Q (PDF)
 
 # Given Channel Parameters
 Sc = 0.0005 # Longitudinal slope of the Channel, also the slope of the hydraulic grade line or the linear hydraulic head loss
